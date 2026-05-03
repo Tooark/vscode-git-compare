@@ -100,6 +100,7 @@ jobs:
           TRIVY_TIMEOUT: 10m
         run: |
           mkdir -p "${{ runner.temp }}/ci-reports"
+          chmod 0777 "${{ runner.temp }}/ci-reports"
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             -v "${{ runner.temp }}/ci-reports:/tmp/ci-reports" \
