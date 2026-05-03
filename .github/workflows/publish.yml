@@ -1,17 +1,10 @@
 name: Publish VS Code Extension
 
 on:
-  # Dispara quando uma tag de versão é criada (ex: v1.0.0)
   push:
-    tags:
-      - 'v*'
-  # Permite execução manual
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Versão para publicar (deixe vazio para usar package.json)'
-        required: false
-        default: ''
 
 permissions:
   contents: write
@@ -21,9 +14,73 @@ env:
   TRIVY_SCANNER_IMAGE: ghcr.io/tooark/trivy-hadolint:latest
 
 jobs:
+  release-meta:
+    name: Resolve release metadata
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+      tag_exists: ${{ steps.meta.outputs.tag_exists }}
+      notes_file: ${{ steps.meta.outputs.notes_file }}
+      has_notes: ${{ steps.meta.outputs.has_notes }}
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Resolver versão e tag
+        id: meta
+        run: |
+          set -eu
+
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            TAG_EXISTS=true
+          else
+            TAG_EXISTS=false
+          fi
+
+          NOTES_WITH_V="notes/${TAG}.md"
+          NOTES_NO_V="notes/${VERSION}.md"
+          NOTES_FILE=""
+          HAS_NOTES=false
+
+          if [ -f "$NOTES_WITH_V" ]; then
+            NOTES_FILE="$NOTES_WITH_V"
+            HAS_NOTES=true
+          elif [ -f "$NOTES_NO_V" ]; then
+            NOTES_FILE="$NOTES_NO_V"
+            HAS_NOTES=true
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "tag_exists=$TAG_EXISTS" >> "$GITHUB_OUTPUT"
+          echo "notes_file=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+          echo "has_notes=$HAS_NOTES" >> "$GITHUB_OUTPUT"
+
+      - name: Resumo da pré-checagem
+        run: |
+          echo "Versão detectada: ${{ steps.meta.outputs.version }}"
+          echo "Tag alvo: ${{ steps.meta.outputs.tag }}"
+          echo "Tag já existe: ${{ steps.meta.outputs.tag_exists }}"
+          echo "Arquivo de notes: ${{ steps.meta.outputs.notes_file }}"
+          echo "Notes encontrado: ${{ steps.meta.outputs.has_notes }}"
+
   security-scan:
     name: Security scan
     runs-on: ubuntu-latest
+    needs: release-meta
+    if: needs.release-meta.outputs.tag_exists != 'true'
 
     steps:
       - name: Checkout código
@@ -38,9 +95,8 @@ jobs:
 
       - name: Run filesystem scan
         env:
-          TRIVY_EXIT_CODE: '1'
-          TRIVY_IGNORE_UNFIXED: 'true'
-          TRIVY_SCANNERS: vuln,secret,misconfig
+          TRIVY_EXIT_CODE: "1"
+          TRIVY_IGNORE_UNFIXED: "true"
           TRIVY_TIMEOUT: 10m
         run: |
           mkdir -p "${{ runner.temp }}/ci-reports"
@@ -54,9 +110,8 @@ jobs:
       - name: Run repository scan
         env:
           TRIVY_SEVERITY: CRITICAL,HIGH
-          TRIVY_EXIT_CODE: '1'
-          TRIVY_IGNORE_UNFIXED: 'true'
-          TRIVY_SCANNERS: vuln,secret,misconfig
+          TRIVY_EXIT_CODE: "1"
+          TRIVY_IGNORE_UNFIXED: "true"
           TRIVY_TIMEOUT: 10m
         run: |
           docker run --rm \
@@ -76,17 +131,22 @@ jobs:
 
   build-and-publish:
     runs-on: ubuntu-latest
-    needs: security-scan
+    needs:
+      - release-meta
+      - security-scan
+    if: needs.release-meta.outputs.tag_exists != 'true'
 
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Instalar dependências
         run: npm ci
@@ -99,7 +159,7 @@ jobs:
 
       - name: Rodar testes
         run: xvfb-run -a npm test
-        continue-on-error: true  # Continua mesmo se testes falharem
+        continue-on-error: true # Continua mesmo se testes falharem
 
       - name: Instalar vsce
         run: npm install -g @vscode/vsce
@@ -111,41 +171,81 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: extension-vsix
-          path: '*.vsix'
+          path: "*.vsix"
 
       - name: Publicar no VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: vsce publish -p $VSCE_PAT
 
-      # Opcional: Publicar também no Open VSX Registry (alternativa open source)
       - name: Publicar no Open VSX Registry
-        if: ${{ vars.PUBLISH_OPEN_VSX == 'true' }}
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: |
           npm install -g ovsx
           ovsx publish -p $OVSX_PAT
 
-  # Job opcional para criar release no GitHub
-  create-release:
-    needs: build-and-publish
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
-      - name: Download do artefato .vsix
-        uses: actions/download-artifact@v4
-        with:
-          name: extension-vsix
-
-      - name: Criar Release no GitHub
-        uses: softprops/action-gh-release@v1
-        with:
-          files: '*.vsix'
-          generate_release_notes: true
+      - name: Criar e enviar tag da versão
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-meta.outputs.tag }}
+        run: |
+          set -eu
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Tag ${TAG_NAME} já existe no remoto, ignorando criação."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "refs/tags/$TAG_NAME"
+
+      - name: Criar GitHub Release com notes da versão
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-meta.outputs.tag }}
+          NOTES_FILE: ${{ needs.release-meta.outputs.notes_file }}
+          HAS_NOTES: ${{ needs.release-meta.outputs.has_notes }}
+          VERSION: ${{ needs.release-meta.outputs.version }}
+        run: |
+          set -eu
+
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME já existe, ignorando criação."
+            exit 0
+          fi
+
+          if [ "$HAS_NOTES" = "true" ] && [ -n "$NOTES_FILE" ] && [ -f "$NOTES_FILE" ]; then
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --notes-file "$NOTES_FILE" \
+              *.vsix
+          else
+            TMP_NOTES=$(mktemp)
+            {
+              echo "# Release $TAG_NAME"
+              echo
+              echo "Versão publicada automaticamente a partir do package.json: $VERSION."
+              echo
+              echo "Arquivo de release notes não encontrado em notes/v$VERSION.md ou notes/$VERSION.md."
+            } > "$TMP_NOTES"
+
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --notes-file "$TMP_NOTES" \
+              *.vsix
+
+            rm -f "$TMP_NOTES"
+          fi
+
+  skip-existing-version:
+    name: Skip publish (tag already exists)
+    runs-on: ubuntu-latest
+    needs: release-meta
+    if: needs.release-meta.outputs.tag_exists == 'true'
+    steps:
+      - name: Encerrar sem publicar
+        run: |
+          echo "Tag ${{ needs.release-meta.outputs.tag }} já existe. Publicação encerrada sem deploy."

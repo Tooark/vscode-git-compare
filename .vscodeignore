@@ -15,3 +15,4 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 media/index.html
+media/*.gif
