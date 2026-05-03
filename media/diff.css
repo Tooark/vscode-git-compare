@@ -1,0 +1,529 @@
+/* ========================================
+   Git Compare - Estilos de Diff
+   ======================================== */
+
+/* Container principal do diff */
+.diff-container {
+	display: flex;
+	gap: 4px;
+	font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
+	font-size: var(--vscode-editor-font-size, 12px);
+	line-height: var(--vscode-editor-line-height, 1.5);
+}
+
+/* Colunas do diff lado a lado */
+.diff-column {
+	flex: 1;
+	overflow-x: auto;
+	border: 1px solid var(--vscode-panel-border, #444);
+	border-radius: 4px;
+	background: var(--vscode-editor-background, #1e1e1e);
+}
+
+/* Cabeçalho da coluna */
+.diff-column-header {
+	padding: 8px 12px;
+	background: var(--vscode-sideBarSectionHeader-background, #2d2d2d);
+	border-bottom: 1px solid var(--vscode-panel-border, #444);
+	font-weight: 600;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.diff-column-header .ref-name {
+	color: var(--vscode-textLink-foreground, #3794ff);
+}
+
+/* Linha individual do diff */
+.diff-line {
+	display: flex;
+	white-space: pre;
+	min-height: 20px;
+}
+
+/* Número da linha */
+.line-number {
+	min-width: 50px;
+	padding: 0 4px;
+	text-align: right;
+	color: var(--vscode-editorLineNumber-foreground, #858585);
+	background: var(--vscode-editorLineNumber-background, transparent);
+	user-select: none;
+	border-right: 1px solid var(--vscode-panel-border, #444);
+	flex-shrink: 0;
+	font-size: var(--vscode-editor-font-size, 12px);
+}
+
+/* Conteúdo da linha */
+.line-content {
+	flex: 1;
+	padding: 0 4px;
+	font-size: var(--vscode-editor-font-size, 12px);
+}
+
+/* Linha adicionada */
+.line-added {
+	background: var(--vscode-diffEditor-insertedLineBackground, rgba(117, 185, 85, 0.302));
+}
+
+.line-added .line-number {
+	background: var(--vscode-diffEditor-insertedLineBackground, rgba(117, 185, 85, 0.302));
+	color: var(--vscode-diffEditor-insertedTextColor, #75b955);
+}
+
+/* Linha removida */
+.line-deleted {
+	background: var(--vscode-diffEditor-removedLineBackground, rgba(241, 76, 76, 0.302));
+}
+
+.line-deleted .line-number {
+	background: var(--vscode-diffEditor-removedLineBackground, rgba(241, 76, 76, 0.302));
+	color: var(--vscode-diffEditor-removedTextColor, #f14c4c);
+}
+
+/* Linha de contexto */
+.line-context {
+	background: transparent;
+}
+
+/* Linha vazia (placeholder) */
+.line-empty {
+	background: var(--vscode-diffEditor-diagonalFill, rgba(128, 128, 128, 0.1));
+}
+
+/* Destaque intralinha para trechos alterados */
+.inline-removed {
+	background: rgba(241, 76, 76, 0.35);
+	border-radius: 2px;
+}
+
+.inline-added {
+	background: rgba(117, 185, 85, 0.35);
+	border-radius: 2px;
+}
+
+/* ========================================
+   Arquivo de Diff
+   ======================================== */
+
+.file-diff {
+	margin-bottom: 24px;
+	border: 1px solid var(--vscode-panel-border, #444);
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+/* Cabeçalho do arquivo */
+.file-diff-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 16px;
+	background: var(--vscode-sideBarSectionHeader-background, #2d2d2d);
+	border-bottom: 1px solid var(--vscode-panel-border, #444);
+}
+
+.file-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.file-toggle,
+.file-fullscreen {
+	background: transparent;
+	border: none;
+	color: var(--vscode-foreground, #ddd);
+	font-size: calc(var(--vscode-editor-font-size) * 1.5, 18px);
+	width: 28px;
+	height: 24px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.file-toggle:hover,
+.file-fullscreen:hover {
+	background: rgba(255, 255, 255, 0.02);
+}
+
+/* Estados de colapso/expansão por arquivo */
+.file-content.collapsed {
+	display: none;
+}
+
+.file-content.expanded {
+	display: block;
+}
+
+.file-name {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--vscode-foreground, #cccccc);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Ícones de status do arquivo */
+.file-status {
+	font-size: 12px;
+	padding: 2px 8px;
+	border-radius: 4px;
+	font-weight: 500;
+}
+
+.file-status.added {
+	background: rgba(155, 185, 85, 0.2);
+	color: #9bb955;
+}
+
+.file-status.deleted {
+	background: rgba(255, 0, 0, 0.2);
+	color: #f14c4c;
+}
+
+.file-status.modified {
+	background: rgba(220, 180, 70, 0.2);
+	color: #dcb446;
+}
+
+.file-status.renamed {
+	background: rgba(100, 149, 237, 0.2);
+	color: #6495ed;
+}
+
+/* ========================================
+   Comparação Lado a Lado
+   ======================================== */
+
+.code-compare {
+	display: flex;
+	gap: 0;
+}
+
+.code-space {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border-right: 1px solid var(--vscode-panel-border, #444);
+}
+
+.code-space:last-child {
+	border-right: none;
+}
+
+.code-space-header {
+	padding: 8px 12px;
+	background: var(--vscode-editor-inactiveSelectionBackground, #264f78);
+	font-weight: 600;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.sync-scroll {
+	white-space: pre;
+	word-break: keep-all;
+	background: var(--vscode-editor-background, #1e1e1e);
+	color: var(--vscode-editor-foreground, #cccccc);
+	margin: 0;
+	padding: 0;
+	font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
+	font-size: var(--vscode-editor-font-size, 12px);
+	tab-size: 4;
+	border: none;
+	flex: 1;
+	min-width: 0;
+	max-height: 500px;
+	overflow: auto;
+}
+
+.sync-scroll::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+.sync-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.sync-scroll::-webkit-scrollbar-thumb {
+	background: var(--vscode-scrollbarSlider-hoverBackground, rgba(100, 100, 100, 0.7));
+	border-radius: 5px;
+}
+
+.sync-scroll::-webkit-scrollbar-thumb:hover {
+	background: var(--vscode-scrollbarSlider-activeBackground, rgba(191, 191, 191, 0.4));
+}
+
+/* ========================================
+   Estatísticas do Diff
+   ======================================== */
+
+.diff-stats {
+	display: flex;
+	gap: 16px;
+	padding: 12px 16px;
+	background: var(--vscode-sideBarSectionHeader-background, #2d2d2d);
+	border-radius: 6px;
+	margin-bottom: 16px;
+}
+
+.diff-stat-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+}
+
+.diff-stat-item .count {
+	font-weight: 600;
+}
+
+.diff-stat-item.files .count {
+	color: var(--vscode-textLink-foreground, #3794ff);
+}
+
+.diff-stat-item.additions .count {
+	color: #9bb955;
+}
+
+.diff-stat-item.deletions .count {
+	color: #f14c4c;
+}
+
+/* ========================================
+   Indicador de Linha Alterada
+   ======================================== */
+
+.change-indicator {
+	width: 4px;
+	flex-shrink: 0;
+}
+
+.change-indicator.add {
+	background: #9bb955;
+}
+
+.change-indicator.delete {
+	background: #f14c4c;
+}
+
+/* ========================================
+   Expansão de Hunks
+   ======================================== */
+
+.hunk-separator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px;
+	background: var(--vscode-editor-lineHighlightBackground, rgba(255, 255, 255, 0.04));
+	color: var(--vscode-descriptionForeground, #888);
+	font-size: 12px;
+	cursor: pointer;
+	gap: 8px;
+}
+
+.hunk-separator:hover {
+	background: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.08));
+}
+
+.hunk-separator .hunk-info {
+	font-family: var(--vscode-editor-font-family, monospace);
+}
+
+/* ========================================
+   Estados de Loading e Erro
+   ======================================== */
+
+.loading-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 48px;
+	color: var(--vscode-descriptionForeground, #888);
+}
+
+.loading-spinner {
+	width: 32px;
+	height: 32px;
+	border: 3px solid var(--vscode-panel-border, #444);
+	border-top-color: var(--vscode-textLink-foreground, #3794ff);
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.error-state {
+	padding: 24px;
+	background: rgba(255, 0, 0, 0.1);
+	border: 1px solid rgba(255, 0, 0, 0.3);
+	border-radius: 6px;
+	color: #f14c4c;
+}
+
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 48px;
+	color: var(--vscode-descriptionForeground, #888);
+	text-align: center;
+}
+
+.empty-state-icon {
+	font-size: 48px;
+	margin-bottom: 16px;
+	opacity: 0.5;
+}
+
+.empty-state-icon img {
+	display: block;
+	width: 48px;
+	height: 48px;
+}
+
+/* ========================================
+   Modo Tela Cheia por Arquivo
+   ======================================== */
+
+.file-diff.fullscreen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100vw;
+	height: 100vh;
+	max-width: 100%;
+	margin: 0;
+	border: none;
+	border-radius: 0;
+	z-index: 10000;
+	display: flex;
+	flex-direction: column;
+}
+
+.file-diff.fullscreen .file-diff-header {
+	flex-shrink: 0;
+}
+
+.file-diff.fullscreen .file-content {
+	flex: 1;
+	max-height: none !important;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.file-diff.fullscreen .code-compare {
+	flex: 1;
+	height: 100%;
+}
+
+.file-diff.fullscreen .sync-scroll {
+	max-height: none;
+	flex: 1;
+}
+
+.file-diff.fullscreen .file-fullscreen {
+	opacity: 0.7;
+}
+
+.file-diff.fullscreen .file-fullscreen:hover {
+	opacity: 1;
+}
+
+/* Overlay para tela cheia */
+body.has-fullscreen-file::after {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.3);
+	z-index: 9999;
+	pointer-events: none;
+}
+
+/* ========================================
+   Busca de Arquivos
+   ======================================== */
+
+.file-search-container {
+	display: flex;
+	align-items: center;
+	gap: calc(var(--vscode-editor-font-size) * 0.5, 8px);
+	padding: 0 var(--vscode-editor-font-size) var(--vscode-editor-font-size) 0;
+	background: var(--vscode-sideBarSectionHeader-background, #2d2d2d);
+	border-bottom: 1px solid var(--vscode-panel-border, #444);
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+.file-search-input {
+	flex: 1;
+	padding: 6px 12px;
+	background: var(--vscode-input-background, #3c3c3c);
+	border: 1px solid var(--vscode-inputBorder-focusBorder, #555);
+	color: var(--vscode-input-foreground, #cccccc);
+	border-radius: 4px;
+	font-size: 13px;
+	font-family: inherit;
+	outline: none;
+}
+
+.file-search-input::placeholder {
+	color: var(--vscode-input-placeholderForeground, #999);
+}
+
+.file-search-input:focus {
+	border-color: var(--vscode-focusBorder, #007acc);
+	box-shadow: 0 0 0 1px var(--vscode-focusBorder, #007acc);
+}
+
+.file-search-count {
+	font-size: 12px;
+	color: var(--vscode-descriptionForeground, #888);
+	min-width: 60px;
+	text-align: right;
+}
+
+.file-diff.hidden {
+	display: none;
+}
+
+/* ========================================
+   Responsividade
+   ======================================== */
+
+@media (max-width: 900px) {
+	.code-compare {
+		flex-direction: column;
+	}
+
+	.code-space {
+		width: 100%;
+	}
+
+	.diff-stats {
+		flex-wrap: wrap;
+	}
+}

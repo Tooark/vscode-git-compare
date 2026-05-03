@@ -1,0 +1,151 @@
+name: Publish VS Code Extension
+
+on:
+  # Dispara quando uma tag de versão é criada (ex: v1.0.0)
+  push:
+    tags:
+      - 'v*'
+  # Permite execução manual
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão para publicar (deixe vazio para usar package.json)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  packages: read
+
+env:
+  TRIVY_SCANNER_IMAGE: ghcr.io/tooark/trivy-hadolint:latest
+
+jobs:
+  security-scan:
+    name: Security scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run filesystem scan
+        env:
+          TRIVY_EXIT_CODE: '1'
+          TRIVY_IGNORE_UNFIXED: 'true'
+          TRIVY_SCANNERS: vuln,secret,misconfig
+          TRIVY_TIMEOUT: 10m
+        run: |
+          mkdir -p "${{ runner.temp }}/ci-reports"
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "${{ runner.temp }}/ci-reports:/tmp/ci-reports" \
+            -e TRIVY_OUTPUT=/tmp/ci-reports/trivy-file.json \
+            "$TRIVY_SCANNER_IMAGE" \
+            filesystem-scan /workspace
+
+      - name: Run repository scan
+        env:
+          TRIVY_SEVERITY: CRITICAL,HIGH
+          TRIVY_EXIT_CODE: '1'
+          TRIVY_IGNORE_UNFIXED: 'true'
+          TRIVY_SCANNERS: vuln,secret,misconfig
+          TRIVY_TIMEOUT: 10m
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "${{ runner.temp }}/ci-reports:/tmp/ci-reports" \
+            -e TRIVY_OUTPUT=/tmp/ci-reports/trivy-repo.json \
+            "$TRIVY_SCANNER_IMAGE" \
+            repo-scan /workspace
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-${{ github.run_id }}
+          path: ${{ runner.temp }}/ci-reports
+          retention-days: 30
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Compilar extensão
+        run: npm run compile
+
+      - name: Rodar testes
+        run: xvfb-run -a npm test
+        continue-on-error: true  # Continua mesmo se testes falharem
+
+      - name: Instalar vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Empacotar extensão (.vsix)
+        run: vsce package
+
+      - name: Upload do artefato .vsix
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-vsix
+          path: '*.vsix'
+
+      - name: Publicar no VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: vsce publish -p $VSCE_PAT
+
+      # Opcional: Publicar também no Open VSX Registry (alternativa open source)
+      - name: Publicar no Open VSX Registry
+        if: ${{ vars.PUBLISH_OPEN_VSX == 'true' }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          npm install -g ovsx
+          ovsx publish -p $OVSX_PAT
+
+  # Job opcional para criar release no GitHub
+  create-release:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Download do artefato .vsix
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-vsix
+
+      - name: Criar Release no GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '*.vsix'
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

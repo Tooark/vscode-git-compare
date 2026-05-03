@@ -1,0 +1,218 @@
+body {
+	margin: 0;
+	padding: var(--padding);
+}
+
+.bold {
+	font-weight: bold;
+}
+
+h1 {
+	font-size: calc(var(--size) * 2);
+	margin-bottom: calc(var(--padding) / 3);
+}
+
+.git-box {
+	display: flex;
+}
+
+.git-form {
+	width: 100%;
+}
+
+.git-elements {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--padding);
+}
+
+.git-input {
+	width: 100%;
+}
+
+.git-label {
+	display: block;
+	margin-bottom: calc(var(--padding) / 4);
+}
+
+.git-btn {
+	display: flex;
+	justify-content: center;
+	align-items: end;
+}
+
+.git-select {
+	height: calc(var(--size) * 2.75);
+	-webkit-border-radius: calc(var(--size) / 4);
+	-moz-border-radius: calc(var(--size) / 4);
+	border-radius: calc(var(--size) / 4);
+	border: 1px solid var(--vscode-editor-foreground);
+	width: 100%;
+	cursor: pointer;
+}
+
+.git-select:hover {
+	outline: none;
+	border: 1px solid var(--blue);
+}
+
+.git-option {
+	display: flex;
+	justify-content: space-between;
+	gap: calc(var(--padding) / 8);
+}
+
+.git-btn {
+	width: var(--width);
+	padding-top: var(--padding);
+}
+
+.git-btn>button {
+	width: var(--width);
+	padding: calc(var(--padding) / 1.5) 0;
+	-webkit-border-radius: calc(var(--size) / 4);
+	-moz-border-radius: calc(var(--size) / 4);
+	border-radius: calc(var(--size) / 4);
+	background-color: var(--blue);
+	cursor: pointer;
+}
+
+.git-btn>button:hover {
+	background-color: var(--blue-dark);
+}
+
+@media (max-width: 680px) {
+	.git-elements {
+		display: inline;
+	}
+
+	.git-input {
+		padding-bottom: var(--padding);
+	}
+
+	.git-btn {
+		width: 100%;
+		padding-top: var(--padding);
+	}
+
+	.git-btn>button {
+		width: 100%;
+	}
+}
+
+
+
+
+
+
+
+
+
+/* body {
+	margin: 0;
+	padding: var(--padding);
+}
+
+span {
+	font-weight: bold;
+}
+
+pre {
+	background: var(--vscode-editor-background);
+	color: var(--vscode-editor-foreground);
+	border-radius: 4px;
+	padding: var(--padding);
+}
+
+#compare-form {
+	width: 480px;
+	padding: var(--padding);
+}*/
+
+.file-diff {
+	margin-bottom: 2em;
+}
+
+.file-name {
+	margin-bottom: 0.15em;
+}
+
+.code-compare {
+	display: flex;
+	gap: var(--padding);
+}
+
+.code-space {
+	flex: 1;
+	min-width: 0;
+}
+
+.sync-scroll {
+	white-space: pre-wrap;
+	word-break: break-all;
+	background: #111111;
+	max-height: 400px;
+	overflow: auto;
+}
+
+
+
+
+
+
+
+/*
+form {
+	width: 100%;
+}
+
+select:hover {
+	outline: none;
+	border: 1px solid #095484;
+	background: #e6eef7;
+}
+
+.git-elements {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--padding);
+}
+
+.git-input {
+	width: 100%;
+}
+
+select {
+	height: 40px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	background: transparent;
+	width: 100%;
+}
+
+.day-visited,
+.time-visited {
+	position: relative;
+}
+
+.btn-block {
+	margin-top: 20px;
+	text-align: center;
+}
+
+button {
+	width: 150px;
+	padding: 10px;
+	border: none;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	background-color: #095484;
+	font-size: 16px;
+	color: #fff;
+	cursor: pointer;
+}
+
+button:hover {
+	background-color: #0666a3;
+} */

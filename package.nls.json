@@ -1,0 +1,13 @@
+{
+	"displayName": "Git Compare",
+	"description": "Extension to compare Git branches and commits with side-by-side visualization.",
+	"commands.category": "Git Compare",
+	"commands.compareCommits.title": "Compare Commits",
+	"commands.selectBranch.title": "Select Branch",
+	"commands.selectCommitForBranch.title": "Select Commit for Comparison",
+	"commands.compareFromSidebar.title": "Compare Sidebar Selection",
+	"commands.refreshSidebar.title": "Refresh Git Compare Sidebar",
+	"viewsContainer.gitCompare.title": "Git Compare",
+	"views.gitCompare.name": "Compare Branches",
+	"views.gitCompare.contextualTitle": "Compare Branches"
+}

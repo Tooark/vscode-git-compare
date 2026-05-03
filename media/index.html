@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./reset.css" rel="stylesheet" />
+    <link href="./style.css" rel="stylesheet" />
+    <title>Git Compare</title>
+  </head>
+  <body>
+    <h1 class="bold">Git Compare</h1>
+    <div class="git-box">
+      <form id="git-form" class="git-form">
+        <div class="git-elements">
+          <div class="git-input">
+            <span class="git-label bold">Branch 1:</span>
+            <select id="git-hash-1" title="git-hash-1" class="git-select">
+              ${options.map(o => `
+              <option value="${o}">${o}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="git-input">
+            <span class="git-label bold">Branch 2:</span>
+            <select id="git-hash-2" title="git-hash-2" class="git-select">
+              ${options.map(o => `
+              <option value="${o}">${o}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="git-btn">
+            <button class="bold" type="submit">Comparar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id="git-result">
+      <pre id="git-diff-output"></pre>
+      <div id="git-diff-result" class="git-diff-result">
+        <div class="file-diff">
+          <h3 class="file-name">${this._escapeHtml(compare.file)}</h3>
+          <div class="code-compare">
+            <div class="code-space">
+              <span class="bold">${this._escapeHtml(compare.hash1_name)}</span>
+              <pre class="sync-scroll hash1">
+							${this._escapeHtml(compare.hash1_content)}
+						</pre
+              >
+            </div>
+            <div class="code-space">
+              <span class="bold">${this._escapeHtml(compare.hash2_name)}</span>
+              <pre class="sync-scroll hash2">
+							${this._escapeHtml(compare.hash2_content)}
+						</pre
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
