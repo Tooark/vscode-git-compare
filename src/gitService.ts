@@ -35,7 +35,6 @@ export class GitService {
 			return stdout.trim();
 		} catch (error) {
 			const err = error as Error & { stderr?: string };
-			vscode.window.showErrorMessage(`Git command failed: ${err.stderr || err.message}`);
 
 			throw new Error(err.stderr || err.message);
 		}

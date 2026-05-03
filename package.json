@@ -1,10 +1,17 @@
 {
-	"name": "vscode-git-compare",
+	"name": "git-compare",
 	"displayName": "%displayName%",
 	"description": "%description%",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"publisher": "tooark",
 	"license": "MIT",
+  "tags": [
+    "git",
+    "compare",
+    "diff",
+    "commits",
+    "branches"
+  ],
 	"keywords": [
 		"git",
 		"compare",

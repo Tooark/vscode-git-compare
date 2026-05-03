@@ -2,6 +2,20 @@
 
 Extensão para o Visual Studio Code que permite comparar branches e commits do Git com visualização lado a lado, destacando diferenças inline no nível de caractere.
 
+## Demonstração
+
+### Comparar commits
+
+![Comparar commits](https://raw.githubusercontent.com/Tooark/vscode-git-compare/main/media/compare.gif)
+
+### Expandir em tela cheia
+
+![Modo tela cheia](https://raw.githubusercontent.com/Tooark/vscode-git-compare/main/media/full-screen.gif)
+
+### Busca de arquivos
+
+![Busca de arquivos](https://raw.githubusercontent.com/Tooark/vscode-git-compare/main/media/search.gif)
+
 ## Funcionalidades
 
 ### Painel lateral (Sidebar)
@@ -36,24 +50,16 @@ A extensão adiciona um painel dedicado na barra de atividade do VS Code com a v
 2. Clique no ícone **Git Compare** na barra de atividade lateral
 3. No painel, clique em **Branch 1** ou **Branch 2** para selecionar os branches desejados
 4. (Opcional) Expanda o grupo de commits de cada branch e clique em um commit para selecionar um ponto específico
-5. Clique no ícone de comparação (▶) na barra do painel para visualizar as diferenças
+5. Clique no botão **Comparar** na barra do painel (ícone de comparação) para visualizar as diferenças
 
-## Estrutura dos arquivos no pacote
+## Observações e limitações
 
-| Pasta/Arquivo       | Descrição                                       |
-| ------------------- | ----------------------------------------------- |
-| `dist/extension.js` | Bundle da extensão compilado                    |
-| `media/`            | Assets do webview (scripts, estilos, ícone SVG) |
-| `media/icon.png`    | Ícone da extensão no Marketplace (128×128 px)   |
+- Requer um workspace com repositório Git válido na raiz.
+- Listagens de commits podem demorar em repositórios com histórico muito extenso.
 
 ## Configurações
 
-Esta extensão não adiciona configurações de usuário no momento.
-
-## Problemas conhecidos
-
-- A comparação requer que o workspace tenha um repositório Git válido na raiz.
-- Repositórios com histórico muito extenso podem demorar ao listar commits.
+A extensão não expõe configurações de usuário atualmente; se futuras features precisarem de preferências (por exemplo, número de commits listados ou comportamento de sincronização), elas serão adicionadas aqui.
 
 ## Licença
 
