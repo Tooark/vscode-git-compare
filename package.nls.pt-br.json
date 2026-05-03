@@ -5,7 +5,7 @@
 	"commands.compareCommits.title": "Comparar Commits",
 	"commands.selectBranch.title": "Selecionar Branch",
 	"commands.selectCommitForBranch.title": "Selecionar Commit para Comparação",
-	"commands.compareFromSidebar.title": "Comparar Seleção da Lateral",
+	"commands.compareFromSidebar.title": "Comparar",
 	"commands.refreshSidebar.title": "Atualizar Sidebar Git Compare",
 	"viewsContainer.gitCompare.title": "Git Compare",
 	"views.gitCompare.name": "Comparar Branches",

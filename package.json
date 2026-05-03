@@ -57,7 +57,8 @@
 			{
 				"command": "vscode-git-compare.compareFromSidebar",
 				"title": "%commands.compareFromSidebar.title%",
-				"category": "%commands.category%"
+				"category": "%commands.category%",
+        "icon": "$(git-compare)"
 			},
 			{
 				"command": "vscode-git-compare.refreshSidebar",
