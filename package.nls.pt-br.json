@@ -1,7 +1,7 @@
 {
 	"displayName": "Ark Git Compare",
 	"description": "Extensão para comparar branches e commits do Git com visualização lado a lado.",
-	"commands.category": "Git Compare",
+	"commands.category": "Ark Compare",
 	"commands.compareCommits.title": "Comparar Commits",
 	"commands.selectBranch.title": "Selecionar Branch",
 	"commands.selectCommitForBranch.title": "Selecionar Commit para Comparação",
